@@ -4,29 +4,28 @@ var jwt = require('jsonwebtoken');
 
 module.exports = function(router) {
     router.route('/auth').post(function(req, res) {
-        // find the user
+        // Find the user.
         model.findOne({
-            userEmail: req.body.email
+            email: String(req.body.email)
         }, function(err, user) {
             if (err) throw err;
-
             if (!user) {
+                // User doesn't exist.
                 res.json({ 'success': false, 'response': 'Authentication failed. User not found.' });
             }
             else if (user) {
-                // check if password matches
-                var hashedPass = require('crypto').createHash('sha1').update(req.body.password).digest('base64');
-                if (hashedPass != user.userPassword) {
+                // Check password.
+                var hashedPass = require('crypto').createHash('sha1').update(String(req.body.password)).digest('base64');
+                if (hashedPass != user.password) {
+                    // Wrong password.
                     res.json({ 'success': false, 'response': 'Authentication failed. Wrong password.' });
                 }
                 else {
-                    // if user is found and password is right
-                    // create a token
+                    // Generate token if everything is OK.
                     var token = jwt.sign({ 'userId': user._id }, config.secret, {
                         expiresIn: config.secretExpire // expires in 24 hours
                     });
-
-                    // return the information including token as JSON
+                    // Return token.
                     res.json({ 'success': true, 'response': 'Enjoy your token!', 'token': token });
                 }
             }
