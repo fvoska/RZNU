@@ -6,7 +6,7 @@ module.exports = function(router) {
     router.route('/auth').post(function(req, res) {
         // Find the user.
         model.findOne({
-            email: String(req.body.email)
+            email: req.body.email
         }, function(err, user) {
             if (err) throw err;
             if (!user) {
@@ -15,7 +15,7 @@ module.exports = function(router) {
             }
             else if (user) {
                 // Check password.
-                var hashedPass = require('crypto').createHash('sha1').update(String(req.body.password)).digest('base64');
+                var hashedPass = require('crypto').createHash('sha1').update(req.body.password).digest('base64');
                 if (hashedPass != user.password) {
                     // Wrong password.
                     res.json({ 'success': false, 'response': 'Authentication failed. Wrong password.' });

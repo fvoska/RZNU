@@ -15,7 +15,7 @@ module.exports = function(req, res, callback) {
             } else {
                 console.log(decoded);
                 // Callback function to continue request processing.
-                callback(req, res);
+                callback();
             }
         });
     } else {
