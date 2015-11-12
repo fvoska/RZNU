@@ -1,0 +1,21 @@
+{
+    "name": "rznu-fvoska",
+    "version": "1.0.0",
+    "author": "Filip Voska",
+    "license": "MIT",
+    "repository": "none",
+    "description": "RESTful service using node.js and mongo.",
+    "main": "main.js",
+    "dependencies": {
+        "express": "",
+        "mongoose": "",
+        "body-parser": "",
+        "jsonwebtoken": ""
+    },
+    "devDependencies": {
+        "jasmine-node": ""
+    },
+    "scripts": {
+        "start": "node main.js"
+    }
+}
