@@ -13,7 +13,6 @@ module.exports = function(req, res, callback) {
                 // Throw error.
                 return res.json({ 'success': false, 'response': 'Failed to authenticate token.' });
             } else {
-                console.log(decoded);
                 // Callback function to continue request processing.
                 callback();
             }

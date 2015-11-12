@@ -4,7 +4,8 @@ var collectionName = 'users';
 var userSchema  = new mongoose.Schema(
     {
         'email': String,
-        'password': String
+        'password': String,
+        'roles': [String]
     },
     {
         'collection': collectionName

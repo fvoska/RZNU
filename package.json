@@ -10,7 +10,8 @@
         "express": "",
         "mongoose": "",
         "body-parser": "",
-        "jsonwebtoken": ""
+        "jsonwebtoken": "",
+        "ua-parser-js": ""
     },
     "devDependencies": {
         "jasmine-node": ""
