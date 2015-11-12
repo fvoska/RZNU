@@ -1,10 +1,10 @@
 # RZNU - Labos
-
 Filip Voska, 0036467446
-
 1. Fetch dependencies
-
-    `npm install`
+```
+npm install
+```
 2. Run
-
-    `node main.js`
+```
+node main.js
+```
