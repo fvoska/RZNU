@@ -1,5 +1,7 @@
 # RZNU - Labos
+
 Filip Voska, 0036467446
+
 1. Fetch dependencies
 
     `npm install`
