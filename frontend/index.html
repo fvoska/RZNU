@@ -45,6 +45,10 @@
                     <div class="section-header">Welcome</div>
                     <div class="section-content">
                         <h4>Interact with the API</h4>
+                        First you should register (first user to register has role admin set automatically) and get your access token.<br>
+                        You can make calls to API manually on <a href="https://localhost:8081/api">https://localhost:8081/api</a> or <a href="http://localhost:8080/api">http://localhost:8080/api</a>.<br>
+                        Some API calls are not allowed if no valid access token is set.<br>
+                        Use navigation bar to chose category. Each category has CRUD actions that interact with API.<br>
                     </div>
                 </div>
                 <div id="users" class="section" style="display: none">
@@ -89,6 +93,36 @@
                             </tbody>
                         </table>
                         <hr>
+                        <h4>User Details</h4>
+                        <div id="userDetailsContainer">
+                            <strong>Basic info</strong>
+                            <div id="userBasicInfo"></div>
+                            <strong>Posted images</strong>
+                            <div id="userPhotoInfo"></div>
+                        </div>
+                        <hr>
+                        <h4>Edit user</h4>
+                        <form class="form-horizontal" role="form">
+                            Editing user: <span id ="editUsrIdSpan"></span>
+                            <input type="hidden" class="form-control" id="editUsrId">
+                            <div class="form-group">
+                                <label class="control-label col-sm-2" for="editUsrEmail">New email:</label>
+                                <div class="col-sm-10">
+                                    <input type="email" class="form-control" id="editUsrEmail" placeholder="Enter email"> (leave blank if not changing)
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="control-label col-sm-2" for="editUsrPwd">New passowrd:</label>
+                                <div class="col-sm-10">
+                                    <input type="password" class="form-control" id="editUsrPwd" placeholder="Enter password"> (leave blank if not changing)
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <div class="col-sm-offset-2 col-sm-10">
+                                    <button id="editUser" type="button" class="btn btn-default">Save changes</button>
+                                </div>
+                            </div>
+                        </form>
                         <h4>Create user</h4>
                         <form class="form-horizontal" role="form">
                             <div class="form-group">
@@ -202,7 +236,7 @@
                                     success: function(data) {
                                         if (data.success == true) {
                                             var user = data.response;
-                                            var source = $("#userRow-template").html();
+                                            var source = $('#userRow-template').html();
                                             var template = Handlebars.compile(source);
                                             var context = { id: user._id, email: user.email, roles: user.roles.join(', ')};
                                             var rowHtml = template(context);
@@ -240,7 +274,7 @@
                                 })
                             }
 
-                            function getUser(id) {
+                            function getUser(id, callback) {
                                 var resourceUrl = '/api/users/' + id;
                                 $.ajax({
                                     method: "GET",
@@ -248,7 +282,7 @@
                                     url: resourceUrl,
                                     success: function(data) {
                                         if (data.success == true) {
-                                            console.log(data.response);
+                                            callback(data.response);
                                         }
                                         else {
                                             alert(data.reponse);
@@ -261,6 +295,7 @@
                             }
 
                             function editUser(id, newEmail, newPwd) {
+                                checkToken();
                                 var resourceUrl = '/api/users/' + id;
                                 $.ajax({
                                     method: "POST",
@@ -273,10 +308,11 @@
                                     success: function(data) {
                                         if (data.success == true) {
                                             // Edited successfully.
+                                            alert(data.response);
                                             getUsers();
                                         }
                                         else {
-                                            alert(data.reponse);
+                                            alert(data.response);
                                         }
                                     },
                                     error: function(data) {
@@ -312,18 +348,35 @@
 
                             function setButtonHandlers() {
                                 $('.btn-usr-details').off("click").click(function() {
+                                    $button = $(this);
                                     var usrId = $(this).data('for-usr-id');
-                                    getUser(usrId);
+                                    getUser(usrId, function(data) {
+                                        var user = data;
+                                        var source = $('#userDetail-template').html();
+                                        var template = Handlebars.compile(source);
+                                        var context = { id: user._id, email: user.email, roles: user.roles.join(', ')};
+                                        var detailsHtml = template(context);
+                                        $('#userBasicInfo').html(detailsHtml);
+                                        $button.blur();
+                                    });
                                 });
                                 $('.btn-usr-edit').off("click").click(function() {
                                     var usrId = $(this).data('for-usr-id');
-                                    editUser(usrId);
+                                    getUser(usrId, function(data) {
+                                        $('#editUsrIdSpan').html(data._id);
+                                        $('#editUsrId').val(data._id);
+                                        $('#editUsrEmail').val(data.email);
+                                    });
                                 });
                                 $('.btn-usr-remove').off("click").click(function() {
                                     var usrId = $(this).data('for-usr-id');
                                     removeUser(usrId);
                                 });
                             }
+
+                            $('#editUser').click(function() {
+                                editUser($('#editUsrId').val(), $('#editUsrEmail').val(), $('#editUsrPwd').val());
+                            });
 
                             $('#createUser').click(function() {
                                 createUser($('#newUsrEmail').val(), $('#newUsrPwd').val());
@@ -348,6 +401,12 @@
                                 <button data-for-usr-id="{{id}}" type="button" class="btn btn-danger remove-confirm btn-usr-remove">Remove</button>
                             </td>
                         </tr>
+                    </script>
+                    <!-- User details template -->
+                    <script id="userDetail-template" type="text/x-handlebars-template">
+                        User ID: {{id}}<br>
+                        Email: {{email}}<br>
+                        Roles: {{roles}}<br>
                     </script>
                 </div>
                 <div id="images" class="section" style="display: none">

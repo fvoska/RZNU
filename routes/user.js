@@ -149,11 +149,11 @@ module.exports = function(router) {
                                 if (errFind) {
                                     response = { 'success': false, 'response': 'Error fetching user.'};
                                 } else {
-                                    if (req.body.email !== undefined) {
+                                    if (req.body.email !== undefined && req.body.email != "") {
                                         // case where email needs to be updated.
                                         data.email = req.body.email;
                                     }
-                                    if (req.body.password !== undefined) {
+                                    if (req.body.password !== undefined && req.body.password != "") {
                                         // case where password needs to be updated
                                         data.password = require('crypto').createHash('sha1').update(req.body.password).digest('base64');
                                     }

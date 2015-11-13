@@ -18,7 +18,7 @@ module.exports = function(req, res, callback) {
                 model.findById(activeUserId, function(errFind, data) {
                     if (!errFind && data) {
                         // Callback function to continue request processing.
-                        callback(f);
+                        callback();
                     }
                     else {
                         return res.json({ 'success': false, 'response': 'User with provided token does not exist!' });

@@ -11,8 +11,7 @@
         "mongoose": "",
         "body-parser": "",
         "jsonwebtoken": "",
-        "ua-parser-js": "",
-        "cors": ""
+        "ua-parser-js": ""
     },
     "devDependencies": {
         "jasmine-node": ""
