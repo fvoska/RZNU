@@ -59,10 +59,10 @@ function checkIfAdmin(req, callback) {
 }
 
 module.exports = function(router) {
-    // All users.
+    // All posts.
     router.route('/posts')
         .get(function(req, res) {
-            // Get all users.
+            // Get all posts.
             var response = {};
             model.post.find({}, { '__v': false }, function(errFind, data) {
                 if (errFind) {
@@ -75,58 +75,56 @@ module.exports = function(router) {
             });
         })
         .put(function(req, res) {
-            // Create new user.
-            var newPost = new model.post();
-            var response = {};
-            var requiredFields = [];
-            var reqIncomplete = false;
-            if (!req.body.byUser) {
-                reqIncomplete = true;
-                requiredFields.push('byUser');
-            }
-            if (!req.body.title) {
-                reqIncomplete = true;
-                requiredFields.push('title');
-            }
-            if (!req.body.content) {
-                reqIncomplete = true;
-                requiredFields.push('content');
-            }
+            authHelper(req, res, function(userId) {
+                // Create new post.
+                var newPost = new model.post();
+                var response = {};
+                var requiredFields = [];
+                var reqIncomplete = false;
+                if (!req.body.title) {
+                    reqIncomplete = true;
+                    requiredFields.push('title');
+                }
+                if (!req.body.content) {
+                    reqIncomplete = true;
+                    requiredFields.push('content');
+                }
 
-            if (reqIncomplete) {
-                res.json({ 'success': false, 'response': 'Required fields: ' + requiredFields.join(', ') });
-            }
-            else {
-                model.user.findById(req.body.byUser, function(errFind, data) {
-                    if (!errFind && data) {
-                        newPost.byUser = req.body.byUser;
-                        newPost.title = req.body.title;
-                        newPost.content = req.body.content;
-                        newPost.save(function(errSave, insertedPost){
-                            if (errSave) {
-                                response = { 'success': false, 'response': 'Error adding new post.' };
-                            }
-                            else {
-                                response = { 'success': true, 'response': 'Post added.', 'newPostID': insertedPost.id};
-                            }
-                            res.json(response);
-                        });
-                    }
-                    else {
-                        res.json({ 'success': false, 'response': 'No user with id: ' + req.body.byUser });
-                    }
-                });
-            }
+                if (reqIncomplete) {
+                    res.json({ 'success': false, 'response': 'Required fields: ' + requiredFields.join(', ') });
+                }
+                else {
+                    model.user.findById(userId, function(errFind, data) {
+                        if (!errFind && data) {
+                            newPost.byUser = userId;
+                            newPost.title = req.body.title;
+                            newPost.content = req.body.content;
+                            newPost.save(function(errSave, insertedPost){
+                                if (errSave) {
+                                    response = { 'success': false, 'response': 'Error adding new post.' };
+                                }
+                                else {
+                                    response = { 'success': true, 'response': 'Post added.', 'newPostID': insertedPost.id};
+                                }
+                                res.json(response);
+                            });
+                        }
+                        else {
+                            res.json({ 'success': false, 'response': 'No user with id: ' + req.body.byUser });
+                        }
+                    });
+                }
+            });
         });
 
-    // Specific user.
+    // Specific post.
     router.route('/posts/:id')
         .get(function(req, res){
-            // Get user by ID.
+            // Get post by ID.
             var response = {};
             model.post.findById(req.params.id, { 'password': false, '__v': false }, function(errFind, data) {
                 if (errFind) {
-                    response = { 'success': false, 'response': 'No user with id: ' + req.params.id };
+                    response = { 'success': false, 'response': 'No post with id: ' + req.params.id };
                 } else {
                     response = { 'success': true, 'response': data };
                 }
@@ -134,7 +132,7 @@ module.exports = function(router) {
             });
         })
         .post(function(req, res) {
-            // Change user details.
+            // Change post details.
             authHelper(req, res, function() {
                 model.post.findById(req.params.id, function(errFind, data) {
                     if (errFind) {
