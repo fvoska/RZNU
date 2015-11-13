@@ -46,3 +46,14 @@ td {
 .form-horizontal input {
     width: 300px;
 }
+.smallPost {
+    border-radius: 5px;
+    background-color: #ccc;
+    padding: 10px;
+    margin: 5px;
+    display: inline-block;
+    width: 48%;
+    height: 120px;
+    overflow: auto;
+    box-shadow: 2px 2px 5px #999;
+}

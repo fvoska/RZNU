@@ -1,4 +1,4 @@
-var model = require('../models/_models.js').user;
+var model = require('../models/_models.js');
 var authHelper = require('./_authHelper.js');
 var jwt = require('jsonwebtoken');
 var config = require('../config.js');
@@ -34,7 +34,7 @@ function checkIfAdmin(req, callback) {
         jwt.verify(token, config.secret, function(err, decoded) {
             if (!err) {
                 activeUserId = decoded.userId;
-                model.findById(activeUserId, function(errFind, data) {
+                model.user.findById(activeUserId, function(errFind, data) {
                     if (errFind) {
                         callback(false);
                     } else if (data) {
@@ -64,7 +64,7 @@ module.exports = function(router) {
         .get(function(req, res) {
             // Get all users.
             var response = {};
-            model.find({}, { 'password': false, '__v': false }, function(errFind, data) {
+            model.user.find({}, { 'password': false, '__v': false }, function(errFind, data) {
                 if (errFind) {
                     response = { 'success': false, 'response': 'Error fetching users.' };
                 }
@@ -78,10 +78,10 @@ module.exports = function(router) {
             // Create new user.
             var newUser = new model();
             var response = {};
-            model.findOne({ email: req.body.email }, function(errFind, user) {
+            model.user.findOne({ email: req.body.email }, function(errFind, user) {
                 if (errFind) throw errFind;
                 if (!user) {
-                    model.count({}, function(errCount, count) {
+                    model.user.count({}, function(errCount, count) {
                         if (errCount) throw errCount;
                         var roles = [];
                         if (count == 0) {
@@ -130,7 +130,7 @@ module.exports = function(router) {
         .get(function(req, res){
             // Get user by ID.
             var response = {};
-            model.findById(req.params.id, { 'password': false, '__v': false }, function(errFind, data) {
+            model.user.findById(req.params.id, { 'password': false, '__v': false }, function(errFind, data) {
                 if (errFind) {
                     response = { 'success': false, 'response': 'No user with id: ' + req.params.id };
                 } else {
@@ -145,15 +145,15 @@ module.exports = function(router) {
                 checkIfAdmin(req, function(isAdmin) {
                     checkUserTokenMatch(req, req.params.id, function(isSameUser) {
                         if (isAdmin || isSameUser) {
-                            model.findById(req.params.id, function(errFind, data) {
+                            model.user.findById(req.params.id, function(errFind, data) {
                                 if (errFind) {
                                     response = { 'success': false, 'response': 'Error fetching user.'};
                                 } else {
-                                    if (req.body.email !== undefined && req.body.email != "") {
+                                    if (req.body.email !== undefined && req.body.email != '') {
                                         // case where email needs to be updated.
                                         data.email = req.body.email;
                                     }
-                                    if (req.body.password !== undefined && req.body.password != "") {
+                                    if (req.body.password !== undefined && req.body.password != '') {
                                         // case where password needs to be updated
                                         data.password = require('crypto').createHash('sha1').update(req.body.password).digest('base64');
                                     }
@@ -181,7 +181,7 @@ module.exports = function(router) {
                 checkIfAdmin(req, function(isAdmin) {
                     checkUserTokenMatch(req, req.params.id, function(isSameUser) {
                         if (isAdmin || isSameUser) {
-                            model.remove({ _id: req.params.id }, function(errDelete, data) {
+                            model.user.remove({ _id: req.params.id }, function(errDelete, data) {
                                 if (errDelete) {
                                     response = { 'success': false, 'response': 'Error deleting user.' };
                                 } else {
@@ -195,6 +195,21 @@ module.exports = function(router) {
                         }
                     });
                 });
+            });
+        });
+
+    // Posts by User
+    router.route('/users/:id/posts')
+        .get(function(req, res){
+            // Get user by ID.
+            var response = {};
+            model.post.find({ byUser: req.params.id }, { '__v': false }, function(errFind, data) {
+                if (errFind) {
+                    response = { 'success': false, 'response': 'User with id: ' + req.params.id + ' has no posts' };
+                } else {
+                    response = { 'success': true, 'response': data };
+                }
+                res.json(response);
             });
         });
 }

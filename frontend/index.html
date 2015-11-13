@@ -97,8 +97,8 @@
                         <div id="userDetailsContainer">
                             <strong>Basic info</strong>
                             <div id="userBasicInfo"></div>
-                            <strong>Posted images</strong>
-                            <div id="userPhotoInfo"></div>
+                            <strong>Posts</strong>
+                            <div id="userPostsInfo"></div>
                         </div>
                         <hr>
                         <h4>Edit user</h4>
@@ -346,6 +346,26 @@
                                 })
                             }
 
+                            function getUserPosts(id, callback) {
+                                var resourceUrl = '/api/users/' + id + '/posts';
+                                $.ajax({
+                                    method: "GET",
+                                    contentType: "application/json",
+                                    url: resourceUrl,
+                                    success: function(data) {
+                                        if (data.success == true) {
+                                            callback(data.response);
+                                        }
+                                        else {
+                                            alert(data.reponse);
+                                        }
+                                    },
+                                    error: function(data) {
+                                        alert('Can not find resource at: ' + resourceUrl)
+                                    }
+                                })
+                            }
+
                             function setButtonHandlers() {
                                 $('.btn-usr-details').off("click").click(function() {
                                     $button = $(this);
@@ -357,7 +377,15 @@
                                         var context = { id: user._id, email: user.email, roles: user.roles.join(', ')};
                                         var detailsHtml = template(context);
                                         $('#userBasicInfo').html(detailsHtml);
-                                        $button.blur();
+                                    });
+                                    getUserPosts(usrId, function(data) {
+                                        var posts = data;
+                                        console.log(posts);
+                                        var source = $('#userPosts-template').html();
+                                        var template = Handlebars.compile(source);
+                                        var context = { num: posts.length, posts: posts };
+                                        var detailsHtml = template(context);
+                                        $('#userPostsInfo').html(detailsHtml);
                                     });
                                 });
                                 $('.btn-usr-edit').off("click").click(function() {
@@ -408,12 +436,29 @@
                         Email: {{email}}<br>
                         Roles: {{roles}}<br>
                     </script>
+                    <!-- User details template -->
+                    <script id="userPosts-template" type="text/x-handlebars-template">
+                        Number of posts: {{num}}<br>
+                        <div id="userPostsContainer">
+                            {{#each posts}}
+                            <div class="smallPost">
+                                <h3>{{title}}</h3>
+                                <p>{{content}}</p>
+                            </div>
+                            {{/each}}
+                        </div>
+                    </script>
                 </div>
                 <div id="images" class="section" style="display: none">
                     <div class="section-header">Images</div>
                     <div class="section-content">
                         All images
                     </div>
+
+                    <!-- Post details template (no id) -->
+                    <script id="postDetailNoIds-template" type="text/x-handlebars-template">
+
+                    </script>
                 </div>
             </div>
         </div>
