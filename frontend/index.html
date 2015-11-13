@@ -12,6 +12,8 @@
         <link href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css" rel="stylesheet" integrity="sha256-MfvZlkHCEqatNoGiOXveE8FIwMzZg4W85qfrfIFBfYc= sha512-dTfge/zgoMYpP7QbHy4gWMEGsbsdZeCXz7irItjcC3sPUFtf0kuFbDz/ixG7ArTxmDjLXDmezHubeNikyKGVyQ==" crossorigin="anonymous">
         <script src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js" integrity="sha256-Sk3nkD6mLTMOF0EOpNtsIry+s1CsaqQC1rVLTAy+0yc= sha512-K1qjQ+NcF2TYO/eI3M6v8EiNYZfA95pQumfvcVrTHtwQVDG+aHRqLi/ETn2uB+1JqwYqVG3LIvdm9lj6imS/pQ==" crossorigin="anonymous"></script>
 
+        <script src="//cdnjs.cloudflare.com/ajax/libs/handlebars.js/4.0.4/handlebars.js"></script>
+
         <script src="js/script.js"></script>
         <link rel="stylesheet" type="text/css" href="css/style.css">
     </head>
@@ -48,10 +50,140 @@
                 <div id="users" class="section" style="display: none">
                     <div class="section-header">Users</div>
                     <div class="section-content">
-                        Create user
+                        <h4>Create user</h4>
+                        <form id="addUser" class="form-horizontal" role="form">
+                            <div class="form-group">
+                                <label class="control-label col-sm-2" for="email">Email:</label>
+                                <div class="col-sm-10">
+                                    <input type="email" class="form-control" id="newUsrEmail" placeholder="Enter email">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="control-label col-sm-2" for="pwd">Password:</label>
+                                <div class="col-sm-10">
+                                    <input type="password" class="form-control" id="newUsrPwd" placeholder="Enter password">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <div class="col-sm-offset-2 col-sm-10">
+                                    <button id="createUser" type="button" class="btn btn-default">Create</button>
+                                </div>
+                            </div>
+                        </form>
                         <hr>
-                        All users
+                        <h4>All users</h4>
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Email</th>
+                                    <th>Roles</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="userRows">
+                            </tbody>
+                        </table>
                     </div>
+                    <!-- User API requests -->
+                    <script>
+                        $(document).ready(function() {
+                            function getUsers() {
+                                // Empty table
+                                $rows = $('#userRows');
+                                $rows.empty();
+                                var resourceUrl = '/api/users';
+
+                                $.ajax({
+                                    method: "GET",
+                                    contentType: "application/json",
+                                    url: resourceUrl,
+                                    success: function(data) {
+                                        if (data.success == true) {
+                                            var users = data.response;
+                                            console.log('Fetched ' + users.length + ' users');
+                                            for (userIndex in users) {
+                                                user = users[userIndex];
+                                                var source = $("#userRow-template").html();
+                                                var template = Handlebars.compile(source);
+                                                var context = { id: user._id, email: user.email, roles: user.roles.join(', ')};
+                                                var rowHtml = template(context);
+                                                $rows.append(rowHtml);
+                                            }
+                                        }
+                                    },
+                                    error: function(data) {
+                                        alert('Can not resource at: ' + resourceUrl)
+                                    }
+                                })
+                            }
+
+                            function appendUser(id) {
+                                var resourceUrl = '/api/users/' + id;
+                                $.ajax({
+                                    method: "GET",
+                                    contentType: "application/json",
+                                    url: resourceUrl,
+                                    success: function(data) {
+                                        if (data.success == true) {
+                                            var user = data.response;
+                                            var source = $("#userRow-template").html();
+                                            var template = Handlebars.compile(source);
+                                            var context = { id: user._id, email: user.email, roles: user.roles.join(', ')};
+                                            var rowHtml = template(context);
+                                            $rows.append(rowHtml);
+                                        }
+                                    },
+                                    error: function(data) {
+                                        alert('Can not resource at: ' + resourceUrl)
+                                    }
+                                })
+                            }
+
+                            function createUser(usrEmail, usrPwd) {
+                                var resourceUrl = '/api/users';
+                                $.ajax({
+                                    method: "PUT",
+                                    contentType: "application/json",
+                                    data: JSON.stringify({
+                                        email: usrEmail,
+                                        password: usrPwd
+                                    }),
+                                    url: resourceUrl,
+                                    success: function(data) {
+                                        if (data.success == true) {
+                                            appendUser(data.newUserID);
+                                        }
+                                        else {
+                                            alert(data.response);
+                                        }
+                                    },
+                                    error: function(data) {
+                                        alert('Can not resource at: ' + resourceUrl)
+                                    }
+                                })
+                            }
+
+                            $('#createUser').click(function() {
+                                createUser($('#newUsrEmail').val(), $('#newUsrPwd').val());
+                            });
+
+                            getUsers();
+                        });
+                    </script>
+                    <!-- User row template -->
+                    <script id="userRow-template" type="text/x-handlebars-template">
+                        <tr>
+                            <td class="vert-align">{{id}}</td>
+                            <td class="vert-align">{{email}}</td>
+                            <td class="vert-align">{{roles}}</td>
+                            <td class="vert-align">
+                                <button type="button" class="btn btn-primary">Details</button>
+                                <button type="button" class="btn btn-warning">Edit</button>
+                                <button type="button" class="btn btn-danger remove-confirm">Remove</button>
+                            </td>
+                        </tr>
+                    </script>
                 </div>
                 <div id="images" class="section" style="display: none">
                     <div class="section-header">Images</div>

@@ -31,3 +31,17 @@ hr {
     border-top: 1px solid rgba(0, 0, 0, 0.1);
     border-bottom: 1px solid rgba(255, 255, 255, 0.3);
 }
+td {
+    vertical-align: middle;
+}
+
+.table tbody>tr>td{
+    vertical-align: top;
+}
+
+.table tbody>tr>td.vert-align{
+    vertical-align: middle;
+}
+#addUser input {
+    width: 300px;
+}
