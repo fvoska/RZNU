@@ -27,7 +27,7 @@ fs.open(config.logFile, 'wx', function (err, fd) {
 console.log('Logging to file: ' + require('path').resolve(config.logFile));
 router.use(function(req, res, next) {
     var ua = uaParser(req.headers['user-agent']);
-    var logPart = req.method + '\t' + req.path + '\t' + ua.browser.name + ' ' + ua.browser.version;
+    var logPart = req.method + '\t' + req.path + '\t' + ua.browser.name + ' ' + ua.browser.version + '\n';
     fs.appendFile(config.logFile, logPart, function (err) {
         if (err) {
             console.log('Error saving to log.');
