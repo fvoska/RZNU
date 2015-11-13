@@ -10,8 +10,10 @@ function checkUserTokenMatch(req, targetUserId, callback) {
     if (token) {
         jwt.verify(token, config.secret, function(err, decoded) {
             if (!err) {
+                // Token verified correctly.
                 activeUserId = decoded.userId;
                 if (String(activeUserId) == String(targetUserId)) {
+                    // Check if user id from token matches target user id.
                     callback(true);
                 }
                 else {
@@ -33,11 +35,14 @@ function checkIfAdmin(req, callback) {
     if (token) {
         jwt.verify(token, config.secret, function(err, decoded) {
             if (!err) {
+                // Token verified correctly.
                 activeUserId = decoded.userId;
+                // Find if user with ID from token exists.
                 model.user.findById(activeUserId, function(errFind, data) {
                     if (errFind) {
                         callback(false);
                     } else if (data) {
+                        // Check if that user is admin.
                         if (data.roles.indexOf('admin') > -1) {
                             callback(true);
                         }
@@ -88,6 +93,7 @@ module.exports = function(router) {
                             roles.push('admin');
                         }
 
+                        // Check if required fields are set.
                         var requiredFields = [];
                         var reqIncomplete = false;
                         if (!req.body.email) {
@@ -100,12 +106,16 @@ module.exports = function(router) {
                         }
 
                         if (reqIncomplete) {
+                            // Not all required fields are set.
                             res.json({ 'success': false, 'response': 'Required fields: ' + requiredFields.join(', ') });
                         }
                         else {
+                            // Set values.
                             newUser.email = req.body.email;
                             newUser.password = require('crypto').createHash('sha1').update(req.body.password).digest('base64');
                             newUser.roles = roles;
+
+                            // Add user.
                             newUser.save(function(errSave, insertedUser){
                                 if (errSave) {
                                     response = { 'success': false, 'response': 'Error adding new user.' };
@@ -119,7 +129,7 @@ module.exports = function(router) {
                     });
                 }
                 else if (user) {
-                    // User already exist.
+                    // User with same email already exist.
                     res.json({ 'success': false, 'response': 'User with same e-mail already exists.' });
                 }
             });
@@ -144,20 +154,22 @@ module.exports = function(router) {
             authHelper(req, res, function() {
                 checkIfAdmin(req, function(isAdmin) {
                     checkUserTokenMatch(req, req.params.id, function(isSameUser) {
+                        // Check permissions.
                         if (isAdmin || isSameUser) {
+                            // Fetch user for editing.
                             model.user.findById(req.params.id, function(errFind, data) {
                                 if (errFind) {
                                     response = { 'success': false, 'response': 'Error fetching user.'};
                                 } else if (data) {
+                                    // Change values is they are set in request.
                                     if (req.body.email !== undefined && req.body.email != '') {
-                                        // case where email needs to be updated.
                                         data.email = req.body.email;
                                     }
                                     if (req.body.password !== undefined && req.body.password != '') {
-                                        // case where password needs to be updated
                                         data.password = require('crypto').createHash('sha1').update(req.body.password).digest('base64');
                                     }
-                                    // save the data
+
+                                    // Save changes
                                     data.save(function(errSave){
                                         if (errSave) {
                                             response = { 'success': false, 'response': 'Error updating user!' };
@@ -173,6 +185,7 @@ module.exports = function(router) {
                             });
                         }
                         else {
+                            // Only admin and user X can edit user X.
                             res.json({ 'success': false, 'response': 'You do not have permissions to edit this user.' });
                         }
                     });
@@ -189,6 +202,7 @@ module.exports = function(router) {
                                     response = { 'success': false, 'response': 'Error deleting user.' };
                                 } else {
                                     response = { 'success': true, 'response': data };
+                                    // data.n == 0 if user with that id doesn't exist / was already deleted.
                                 }
                                 res.json(response);
                             });

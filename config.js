@@ -1,8 +1,8 @@
 var fs = require('fs');
 
 module.exports = {
-    'httpPort': '80',
-    'httpsPort': '443',
+    'httpPort': '8080',
+    'httpsPort': '8081',
     'secret': 'lemmiwinks92',
     'secretExpire': '1h',
     'database': 'mongodb://localhost:27017/rznu',
