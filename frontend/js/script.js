@@ -489,10 +489,8 @@ $(document).ready(function() {
         createPost($('#newPostTitle').val(), $('#newPostContent').val());
     });
 
-    setTimeout(function() {
-        getUsers();
-    }, 0);
+    getUsers();
     setTimeout(function() {
         getPosts();
-    }, 100);
+    }, 0);
 });

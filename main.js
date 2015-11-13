@@ -60,5 +60,5 @@ var sslOptions = {
     rejectUnauthorized: false
 };
 
-http.createServer(app).listen(8080);
-https.createServer(sslOptions, app).listen(8081);
+http.createServer(app).listen(config.httpPort);
+https.createServer(sslOptions, app).listen(config.httpsPort);

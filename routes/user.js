@@ -76,7 +76,7 @@ module.exports = function(router) {
         })
         .put(function(req, res) {
             // Create new user.
-            var newUser = new model();
+            var newUser = new model.user();
             var response = {};
             model.user.findOne({ email: req.body.email }, function(errFind, user) {
                 if (errFind) throw errFind;
@@ -148,7 +148,7 @@ module.exports = function(router) {
                             model.user.findById(req.params.id, function(errFind, data) {
                                 if (errFind) {
                                     response = { 'success': false, 'response': 'Error fetching user.'};
-                                } else {
+                                } else if (data) {
                                     if (req.body.email !== undefined && req.body.email != '') {
                                         // case where email needs to be updated.
                                         data.email = req.body.email;
@@ -166,6 +166,9 @@ module.exports = function(router) {
                                         }
                                         res.json(response);
                                     })
+                                }
+                                else {
+                                    res.json({ 'success': false, 'response': 'No user with id: ' + req.parems.id });
                                 }
                             });
                         }
