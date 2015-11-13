@@ -1,5 +1,6 @@
 var jwt = require('jsonwebtoken');
 var config = require('../config.js');
+var model = require('../models/_models.js').user;
 
 module.exports = function(req, res, callback) {
     // Get access token.
@@ -13,12 +14,20 @@ module.exports = function(req, res, callback) {
                 // Throw error.
                 return res.json({ 'success': false, 'response': 'Failed to authenticate token.' });
             } else {
-                // Callback function to continue request processing.
-                callback();
+                activeUserId = decoded.userId;
+                model.findById(activeUserId, function(errFind, data) {
+                    if (!errFind && data) {
+                        // Callback function to continue request processing.
+                        callback(f);
+                    }
+                    else {
+                        return res.json({ 'success': false, 'response': 'User with provided token does not exist!' });
+                    }
+                });
             }
         });
     } else {
         // No token is set.
-        return res.status(403).send({ 'success': false, 'response': 'No token provided.' });
+        return res.json({ 'success': false, 'response': 'No token provided.' });
     }
 }

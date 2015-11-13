@@ -42,6 +42,6 @@ td {
 .table tbody>tr>td.vert-align{
     vertical-align: middle;
 }
-#addUser input {
+.form-horizontal input {
     width: 300px;
 }

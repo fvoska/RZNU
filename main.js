@@ -6,6 +6,7 @@ var app = express();
 var bodyParser = require('body-parser');
 var uaParser = require('ua-parser-js');
 var fs = require('fs');
+var cors = require('cors')
 
 // Set parser.
 app.use(bodyParser.json());
@@ -42,6 +43,15 @@ app.use('/api', router);
 
 // Set index page.
 app.use('/', express.static('frontend'));
+
+// Generic errors.
+app.use(function(err, req, res, next){
+    res.json({ 'success': false, 'response': err });
+    console.log(err);
+});
+
+// CORS.
+app.use(cors());
 
 // Listen on HTTP and HTTPS
 var https = require('https');

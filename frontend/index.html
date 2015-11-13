@@ -50,23 +50,27 @@
                 <div id="users" class="section" style="display: none">
                     <div class="section-header">Users</div>
                     <div class="section-content">
-                        <h4>Create user</h4>
-                        <form id="addUser" class="form-horizontal" role="form">
+                        <h4>Current user info</h4>
+                        <div id="userShow" style="display: none;"></div>
+                        <div id="tokenShow" style="display: none;"></div>
+                        <hr>
+                        <h4>Get token (login)</h4>
+                        <form class="form-horizontal" role="form">
                             <div class="form-group">
-                                <label class="control-label col-sm-2" for="email">Email:</label>
+                                <label class="control-label col-sm-2" for="loginUsrEmail">Email:</label>
                                 <div class="col-sm-10">
-                                    <input type="email" class="form-control" id="newUsrEmail" placeholder="Enter email">
+                                    <input type="email" class="form-control" id="loginUsrEmail" placeholder="Enter email">
                                 </div>
                             </div>
                             <div class="form-group">
-                                <label class="control-label col-sm-2" for="pwd">Password:</label>
+                                <label class="control-label col-sm-2" for="loginUsrPwd">Password:</label>
                                 <div class="col-sm-10">
-                                    <input type="password" class="form-control" id="newUsrPwd" placeholder="Enter password">
+                                    <input type="password" class="form-control" id="loginUsrPwd" placeholder="Enter password">
                                 </div>
                             </div>
                             <div class="form-group">
                                 <div class="col-sm-offset-2 col-sm-10">
-                                    <button id="createUser" type="button" class="btn btn-default">Create</button>
+                                    <button id="loginUser" type="button" class="btn btn-default">Get token</button>
                                 </div>
                             </div>
                         </form>
@@ -84,10 +88,80 @@
                             <tbody id="userRows">
                             </tbody>
                         </table>
+                        <hr>
+                        <h4>Create user</h4>
+                        <form class="form-horizontal" role="form">
+                            <div class="form-group">
+                                <label class="control-label col-sm-2" for="newUsrEmail">Email:</label>
+                                <div class="col-sm-10">
+                                    <input type="email" class="form-control" id="newUsrEmail" placeholder="Enter email">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="control-label col-sm-2" for="newUsrPwd">Password:</label>
+                                <div class="col-sm-10">
+                                    <input type="password" class="form-control" id="newUsrPwd" placeholder="Enter password">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <div class="col-sm-offset-2 col-sm-10">
+                                    <button id="createUser" type="button" class="btn btn-default">Create</button>
+                                </div>
+                            </div>
+                        </form>
                     </div>
                     <!-- User API requests -->
                     <script>
                         $(document).ready(function() {
+                            function getToken(email, password) {
+                                $('#tokenShow').slideUp();
+                                var resourceUrl = '/api/auth';
+                                $.ajax({
+                                    method: "POST",
+                                    contentType: "application/json",
+                                    data: JSON.stringify({
+                                        'email': email,
+                                        'password': password
+                                    }),
+                                    url: resourceUrl,
+                                    success: function(data) {
+                                        if (data.success == true) {
+                                            // Got token
+                                            sessionStorage.setItem('token', data.token);
+                                            $('#tokenShow').html('API access token: <pre>' + data.token + '</pre>');
+                                            $('#tokenShow').slideDown();
+
+                                            sessionStorage.setItem('email', email);
+                                            $('#userShow').html('User email: ' + email);
+                                            $('#userShow').slideDown();
+                                        }
+                                        else {
+                                            alert(data.response);
+                                        }
+                                    },
+                                    error: function(data) {
+                                        alert('Can not find resource at: ' + resourceUrl)
+                                    }
+                                })
+                            }
+
+                            function checkToken() {
+                                if (sessionStorage.getItem('token')) {
+                                    $.ajaxSetup({
+                                        beforeSend: function(jqXHR, settings) {
+                                            jqXHR.setRequestHeader('x-access-token', sessionStorage.getItem('token'));
+                                        }
+                                    });
+                                }
+                                else {
+                                    $.ajaxSetup({
+                                        beforeSend: function(jqXHR, settings) {
+                                            jqXHR.setRequestHeader('x-access-token', "");
+                                        }
+                                    });
+                                }
+                            }
+
                             function getUsers() {
                                 // Empty table
                                 $rows = $('#userRows');
@@ -109,11 +183,12 @@
                                                 var context = { id: user._id, email: user.email, roles: user.roles.join(', ')};
                                                 var rowHtml = template(context);
                                                 $rows.append(rowHtml);
+                                                setButtonHandlers();
                                             }
                                         }
                                     },
                                     error: function(data) {
-                                        alert('Can not resource at: ' + resourceUrl)
+                                        alert('Can not find resource at: ' + resourceUrl)
                                     }
                                 })
                             }
@@ -132,10 +207,11 @@
                                             var context = { id: user._id, email: user.email, roles: user.roles.join(', ')};
                                             var rowHtml = template(context);
                                             $rows.append(rowHtml);
+                                            setButtonHandlers();
                                         }
                                     },
                                     error: function(data) {
-                                        alert('Can not resource at: ' + resourceUrl)
+                                        alert('Can not find resource at: ' + resourceUrl)
                                     }
                                 })
                             }
@@ -159,13 +235,102 @@
                                         }
                                     },
                                     error: function(data) {
-                                        alert('Can not resource at: ' + resourceUrl)
+                                        alert('Can not find resource at: ' + resourceUrl)
                                     }
                                 })
                             }
 
+                            function getUser(id) {
+                                var resourceUrl = '/api/users/' + id;
+                                $.ajax({
+                                    method: "GET",
+                                    contentType: "application/json",
+                                    url: resourceUrl,
+                                    success: function(data) {
+                                        if (data.success == true) {
+                                            console.log(data.response);
+                                        }
+                                        else {
+                                            alert(data.reponse);
+                                        }
+                                    },
+                                    error: function(data) {
+                                        alert('Can not find resource at: ' + resourceUrl)
+                                    }
+                                })
+                            }
+
+                            function editUser(id, newEmail, newPwd) {
+                                var resourceUrl = '/api/users/' + id;
+                                $.ajax({
+                                    method: "POST",
+                                    contentType: "application/json",
+                                    data: JSON.stringify({
+                                        email: newEmail,
+                                        password: newPwd
+                                    }),
+                                    url: resourceUrl,
+                                    success: function(data) {
+                                        if (data.success == true) {
+                                            // Edited successfully.
+                                            getUsers();
+                                        }
+                                        else {
+                                            alert(data.reponse);
+                                        }
+                                    },
+                                    error: function(data) {
+                                        alert('Can not find resource at: ' + resourceUrl)
+                                    }
+                                })
+                            }
+
+                            function removeUser(id) {
+                                var sure = confirm('Are you sure you want to delete user ' + id + '?');
+                                if (!sure) return;
+
+                                checkToken();
+                                var resourceUrl = '/api/users/' + id;
+                                $.ajax({
+                                    method: "DELETE",
+                                    contentType: "application/json",
+                                    url: resourceUrl,
+                                    success: function(data) {
+                                        if (data.success == true) {
+                                            // Removed
+                                            getUsers();
+                                        }
+                                        else {
+                                            alert(data.response);
+                                        }
+                                    },
+                                    error: function(data) {
+                                        alert('Can not find resource at: ' + resourceUrl)
+                                    }
+                                })
+                            }
+
+                            function setButtonHandlers() {
+                                $('.btn-usr-details').off("click").click(function() {
+                                    var usrId = $(this).data('for-usr-id');
+                                    getUser(usrId);
+                                });
+                                $('.btn-usr-edit').off("click").click(function() {
+                                    var usrId = $(this).data('for-usr-id');
+                                    editUser(usrId);
+                                });
+                                $('.btn-usr-remove').off("click").click(function() {
+                                    var usrId = $(this).data('for-usr-id');
+                                    removeUser(usrId);
+                                });
+                            }
+
                             $('#createUser').click(function() {
                                 createUser($('#newUsrEmail').val(), $('#newUsrPwd').val());
+                            });
+
+                            $('#loginUser').click(function() {
+                                getToken($('#loginUsrEmail').val(), $('#loginUsrPwd').val())
                             });
 
                             getUsers();
@@ -178,9 +343,9 @@
                             <td class="vert-align">{{email}}</td>
                             <td class="vert-align">{{roles}}</td>
                             <td class="vert-align">
-                                <button type="button" class="btn btn-primary">Details</button>
-                                <button type="button" class="btn btn-warning">Edit</button>
-                                <button type="button" class="btn btn-danger remove-confirm">Remove</button>
+                                <button data-for-usr-id="{{id}}" type="button" class="btn btn-primary btn-usr-details">Details</button>
+                                <button data-for-usr-id="{{id}}" type="button" class="btn btn-warning btn-usr-edit">Edit</button>
+                                <button data-for-usr-id="{{id}}" type="button" class="btn btn-danger remove-confirm btn-usr-remove">Remove</button>
                             </td>
                         </tr>
                     </script>
@@ -193,6 +358,5 @@
                 </div>
             </div>
         </div>
-
     </body>
 </html>

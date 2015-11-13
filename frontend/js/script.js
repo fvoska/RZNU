@@ -12,4 +12,16 @@ $(document).ready(function() {
         }, 300);
         e.preventDefault();
     });
+
+    if (sessionStorage.getItem('email'))
+    {
+        $('#userShow').html('User email: ' + sessionStorage.getItem('email'));
+        $('#userShow').slideDown();
+    }
+
+    if (sessionStorage.getItem('token'))
+    {
+        $('#tokenShow').html('API access token: <pre>' + sessionStorage.getItem('token') + '</pre>');
+        $('#tokenShow').slideDown();
+    }
 });
