@@ -17,7 +17,7 @@ $ [sudo] node main.js
 
 ## Usage
 
-When started, app runs on localhost on both HTTP and HTTPS by default (standard ports 80 and 443). Using https version is recommended. Certificate is self-signed, ignore browser warnings.
+When started, app runs on localhost on both HTTP and HTTPS by default (on ports 8080 and 8443 - can be configured in config). Using https version is recommended. Certificate is self-signed, ignore browser warnings.
 
 There is a HTML/jQuery/Bootstrap user interface available at / (https://localhost).
 
@@ -35,6 +35,8 @@ If you have mocha installed globally, you can simply run:
 ```
 $ mocha
 ```
+
+Note: tests use HTTP, not HTTPS.
 
 ##List of endpoints and examples
 * /api/auth
@@ -105,7 +107,7 @@ $ mocha
 
      Before auth:
      ```
-     Request: https://localhost:443/api/users/56463126fa2866a5bbe598b2
+     Request: https://localhost:8443/api/users/56463126fa2866a5bbe598b2
      {
         "password" : "new_pass",
      }
@@ -117,7 +119,7 @@ $ mocha
      ```
      After auth:
      ```
-     Request: https://localhost:443/api/users/56463126fa2866a5bbe598b2?token=...
+     Request: https://localhost:8443/api/users/56463126fa2866a5bbe598b2?token=...
      {
         "password" : "new_pass",
      }
