@@ -7,11 +7,11 @@ Filip Voska, 0036467446
   * Change mongo server connection in config.js if needed
 2. Fetch dependencies
 ```
-[sudo] npm install
+$ [sudo] npm install
 ```
 3. Start application
 ```
-[sudo] node main.js
+$ [sudo] node main.js
 ```
   * Change ports in config.js if there are conflicts
 
@@ -23,7 +23,20 @@ There is a HTML/jQuery/Bootstrap user interface available at / (https://localhos
 
 Using UI makes things easier, but requests can always be made directly to the API at /api (https://localhost/api). Postman is a good tool for this. Any data that gets sent using in PUT and POST requests should be formated as ```application/json``` (body -> raw -> JSON in Postman).
 
-List of endpoints and examples:
+## Running tests
+
+Warning: all data in database that is used for testing will be wiped. Suggestion: create another database and before testing set it in config.
+
+In project's root folder run:
+```
+$ node node_modules/.bin/mocha
+```
+If you have mocha installed globally, you can simply run:
+```
+$ mocha
+```
+
+##List of endpoints and examples
 * /api/auth
  * POST
     ```
@@ -129,7 +142,7 @@ List of endpoints and examples:
  * DELETE deletes post (requires token)
   -examples are similar as for users.
 
-Token can be acquired once the user is registered. When making requests to endpoints which require a token, token can be sent in 3 ways:
+Token can be acquired once the user is registered. Token is signed using symmetrical encryption and contains user ID and validity time period. When making requests to endpoints which require a token, token can be sent in 3 ways:
  * inside x-access-token header - used in included UI
  * regular parameter ?token=...
  * inside request body JSON "token": ...
