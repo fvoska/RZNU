@@ -29,11 +29,11 @@ Warning: all data in database that is used for testing will be wiped. Suggestion
 
 In project's root folder run:
 ```
-$ node node_modules/.bin/mocha
+$ node node_modules/.bin/mocha --sort
 ```
 If you have mocha installed globally, you can simply run:
 ```
-$ mocha
+$ mocha --sort
 ```
 
 Note: tests use HTTP, not HTTPS.
