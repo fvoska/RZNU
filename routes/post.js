@@ -34,7 +34,7 @@ function checkIfAdmin(req, callback) {
         jwt.verify(token, config.secret, function(err, decoded) {
             if (!err) {
                 activeUserId = decoded.userId;
-                model.post.findById(activeUserId, function(errFind, data) {
+                model.user.findById(activeUserId, function(errFind, data) {
                     if (errFind) {
                         callback(false);
                     } else if (data) {
