@@ -14,7 +14,9 @@
         "ua-parser-js": ""
     },
     "devDependencies": {
-        "jasmine-node": ""
+        "mocha": "",
+        "should": "",
+        "supertest": ""
     },
     "scripts": {
         "start": "node main.js"

@@ -159,7 +159,7 @@ module.exports = function(router) {
                             // Fetch user for editing.
                             model.user.findById(req.params.id, function(errFind, data) {
                                 if (errFind) {
-                                    response = { 'success': false, 'response': 'Error fetching user.'};
+                                    res.json({ 'success': false, 'response': 'Error fetching user.'});
                                 } else if (data) {
                                     // Change values is they are set in request.
                                     if (req.body.email !== undefined && req.body.email != '') {
