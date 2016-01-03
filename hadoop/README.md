@@ -41,3 +41,11 @@ hadoop com.sun.tools.javac.Main EndpointCount*.java
 jar cf EndpointCount.jar EndpointCount*.class
 hadoop jar EndpointCount.jar EndpointCount /log.txt /out_endpoint
 ```
+
+Secondary (descending) sorting job:
+```
+hadoop com.sun.tools.javac.Main SortByValue*.java
+jar cf SortByValue.jar SortByValue*.class
+hadoop jar SortByValue.jar SortByValue /out_endpoint/part-00000 /out_endpoint_sorted
+hadoop jar SortByValue.jar SortByValue /out_browser/part-00000 /out_browser_sorted
+```
