@@ -1,24 +1,25 @@
 {
-    "name": "rznu-fvoska",
-    "version": "1.0.0",
-    "author": "Filip Voska",
-    "license": "GPL-3.0",
-    "repository": "https://github.com/fvoska/RZNU",
-    "description": "RESTful service using node.js and mongo.",
-    "main": "main.js",
-    "dependencies": {
-        "express": "",
-        "mongoose": "",
-        "body-parser": "",
-        "jsonwebtoken": "",
-        "ua-parser-js": ""
-    },
-    "devDependencies": {
-        "mocha": "",
-        "should": "",
-        "supertest": ""
-    },
-    "scripts": {
-        "start": "node main.js"
-    }
+  "name": "rznu-fvoska",
+  "version": "1.0.0",
+  "author": "Filip Voska",
+  "license": "GPL-3.0",
+  "repository": "https://github.com/fvoska/RZNU",
+  "description": "RESTful service using node.js and mongo.",
+  "main": "main.js",
+  "dependencies": {
+    "apicache": "0.0.12",
+    "body-parser": "",
+    "express": "",
+    "jsonwebtoken": "",
+    "mongoose": "",
+    "ua-parser-js": ""
+  },
+  "devDependencies": {
+    "mocha": "",
+    "should": "",
+    "supertest": ""
+  },
+  "scripts": {
+    "start": "node main.js"
+  }
 }

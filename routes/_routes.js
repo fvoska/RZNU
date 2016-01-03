@@ -3,4 +3,5 @@ module.exports = function(router) {
     require('./home.js')(router);
     require('./user.js')(router);
     require('./post.js')(router);
+    require('./stats.js')(router);
 };

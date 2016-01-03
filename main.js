@@ -7,6 +7,8 @@ var bodyParser = require('body-parser');
 var uaParser = require('ua-parser-js');
 var fs = require('fs');
 
+GLOBAL.dirname = __dirname;
+
 // Set parser.
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ 'extended' : false }));
